@@ -5917,12 +5917,12 @@ ARjs.Source.prototype._initSourceWebcam = function(onReady, onError) {
 
 	// get available devices
 	navigator.mediaDevices.enumerateDevices().then(function(devices) {
-		var exArray = []; //存储设备源ID 
+		var exArray = []; 
 
 
  for (var i = 0; i != devices.length; ++i) { 
  var sourceInfo = devices[i]; 
- //这里会遍历audio,video，所以要加以区分 
+ //
  if (devices.kind === 'video') { 
  exArray.push(sourceInfo.deviceId); 
  } 
@@ -5931,20 +5931,9 @@ ARjs.Source.prototype._initSourceWebcam = function(onReady, onError) {
                 var userMediaConstraints = {
 			audio: false,
 			video: {
-				facingMode: 'environment',
 				 'optional': [{ 
- 'sourceId': exArray[1] //0为前置摄像头，1为后置 
- }] ,
-				width: {
-					ideal: _this.parameters.sourceWidth,
-					// min: 1024,
-					// max: 1920
-				},
-				height: {
-					ideal: _this.parameters.sourceHeight,
-					// min: 776,
-					// max: 1080
-				}
+ 'sourceId': exArray[1] //
+ }] 
 		  	}
                 }
                 
