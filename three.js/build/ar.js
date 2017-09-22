@@ -5917,26 +5917,44 @@ ARjs.Source.prototype._initSourceWebcam = function(onReady, onError) {
 
 	// get available devices
 	navigator.mediaDevices.enumerateDevices().then(function(devices) {
-		var exArray = []; 
-
-
- for (var i = 0; i != devices.length; ++i) { 
- var sourceInfo = devices[i]; 
- //
- if (devices.kind === 'video') { 
- exArray.push(sourceInfo.deviceId); 
+		var exArray = []; //存储设备源ID 
+if (navigator.getUserMedia) { 
+ MediaStreamTrack.getSources(function (sourceInfos) { 
+ for (var i = 0; i != sourceInfos.length; ++i) { 
+ var sourceInfo = sourceInfos[i]; 
+ //这里会遍历audio,video，所以要加以区分 
+ if (sourceInfo.kind === 'video') { 
+ exArray.push(sourceInfo.id); 
  } 
  }
-
-                var userMediaConstraints = {
-			audio: false,
-			video: {
-				 'optional': [{ 
- 'sourceId': exArray[1] //
+ navigator.getUserMedia({ 
+ 'video': { 
+ 'optional': [{ 
+ 'sourceId': exArray[1] //0为前置摄像头，1为后置 
  }] 
-		  	}
-                }
-                
+ },
+ 'audio':false 
+ }, successFunc, errorFunc); 
+ });
+}
+              function success(stream) {
+			// set the .src of the domElement
+			domElement.srcObject = stream;
+			// to start the video, when it is possible to start it only on userevent. like in android
+			document.body.addEventListener('click', function(){
+				domElement.play();
+			})
+			// domElement.play();
+
+// TODO listen to loadedmetadata instead
+			// wait until the video stream is ready
+			var interval = setInterval(function() {
+				if (!domElement.videoWidth)	return;
+				onReady()
+				clearInterval(interval)
+			}, 1000/50);
+		}
+		return;  
 		// get a device which satisfy the constraints
 		navigator.mediaDevices.getUserMedia(userMediaConstraints).then(function success(stream) {
 			// set the .src of the domElement
